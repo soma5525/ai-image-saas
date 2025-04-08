@@ -87,9 +87,6 @@ export async function handleSubscriptionUpdated(
 export async function handleSubscriptionDeleted(
   subscription: Stripe.Subscription
 ) {
-  const { priceId, status, credits } = getPlanDetails(subscription);
-
-  // ユーザーを見つける
   const user = await prisma.user.findUnique({
     where: {
       stripeCustomerId: subscription.customer as string,
@@ -104,14 +101,12 @@ export async function handleSubscriptionDeleted(
     return null;
   }
 
-  // サブスクリプションを削除
   await prisma.subscription.delete({
     where: {
       id: user.subscription.id,
     },
   });
 
-  // ユーザー情報を更新
   return prisma.user.update({
     where: {
       stripeCustomerId: subscription.customer as string,

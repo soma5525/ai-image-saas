@@ -15,17 +15,14 @@ import { Textarea } from "@/components/ui/textarea";
 import {
   BarChart3,
   Image as ImageIcon,
-  FileText,
   Settings,
   Plus,
   Download,
   Trash2,
-  Upload,
 } from "lucide-react";
 import Image from "next/image";
 
 export default function DashboardPage() {
-  const [activeTab, setActiveTab] = useState("overview");
   const [prompt, setPrompt] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedImage, setGeneratedImage] = useState<string | null>(null);

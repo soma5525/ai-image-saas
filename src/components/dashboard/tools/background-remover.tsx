@@ -10,7 +10,7 @@ import { Download, Loader, Layers } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { SignInButton, useUser } from "@clerk/nextjs";
-
+import Image from "next/image";
 const initialState: GenerateImageState = {
   status: "idle",
 };
@@ -97,7 +97,7 @@ const BackgroundRemover = () => {
         <div className="space-y-4">
           <div className="overflow-hidden rounded-lg border bg-background">
             <div className="aspect-video relative">
-              <img
+              <Image
                 src={state.imageUrl}
                 alt="Generated image"
                 className="w-full h-full object-cover"

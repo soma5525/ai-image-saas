@@ -15,7 +15,8 @@ const initialState: StripeState = {
 };
 
 const Page = () => {
-  const [state, formAction, pending] = useActionState(
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [_, formAction, __] = useActionState(
     async (prevState: StripeState, formData: FormData) => {
       const result = await createStripeSession(prevState, formData);
 
