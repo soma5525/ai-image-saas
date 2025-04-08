@@ -17,20 +17,43 @@ export async function POST() {
       },
     });
 
-    if (!dbUser?.stripeCustomerId) {
+    if (!dbUser) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
+    if (!dbUser.stripeCustomerId) {
+      return NextResponse.json(
+        { error: "No Stripe customer ID found" },
+        { status: 400 }
+      );
+    }
+
+    if (!process.env.NEXT_PUBLIC_APP_URL) {
+      console.warn("NEXT_PUBLIC_APP_URL is not set");
+    }
+
+    const returnUrl = `${
+      process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"
+    }/dashboard/settings`;
+
     const session = await stripe.billingPortal.sessions.create({
       customer: dbUser.stripeCustomerId,
-      return_url: `${
-        process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"
-      }/dashboard/settings`,
+      return_url: returnUrl,
     });
+
+    if (!session?.url) {
+      return NextResponse.json(
+        { error: "Failed to create portal session" },
+        { status: 500 }
+      );
+    }
 
     return NextResponse.json({ url: session.url });
   } catch (error) {
-    console.log("Error:", error);
-    return NextResponse.json({ error: "Internal Error" }, { status: 500 });
+    console.error("Error creating portal session:", error);
+    return NextResponse.json(
+      { error: "Internal Server Error" },
+      { status: 500 }
+    );
   }
 }
