@@ -11,6 +11,7 @@ import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { SignInButton, useUser } from "@clerk/nextjs";
 import Image from "next/image";
+
 const initialState: GenerateImageState = {
   status: "idle",
 };
@@ -49,12 +50,19 @@ const ImageGenerator = () => {
     }
   };
 
+  // エラーが発生した場合のトースト通知
+  if (state.status === "error" && state.error) {
+    toast.error(state.error, {
+      description: state.details,
+    });
+  }
+
   return (
     <div className="space-y-6">
       <div className="space-y-4">
         <form action={formAction} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="keyword`">キーワード</Label>
+            <Label htmlFor="keyword">キーワード</Label>
             <Input
               id="keyword"
               name="keyword"

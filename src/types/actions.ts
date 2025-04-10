@@ -3,12 +3,14 @@ export type GenerateImageState = {
   error?: string;
   status: "idle" | "success" | "error";
   keyword?: string;
+  details?: string;
 };
 
 export type RemoveBackgroundState = {
   imageUrl?: string;
   error?: string;
   status: "idle" | "success" | "error";
+  details?: string;
 };
 
 export type StripeState = {

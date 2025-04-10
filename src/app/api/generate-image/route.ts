@@ -4,6 +4,8 @@ import axios from "axios";
 import FormData from "form-data";
 import sharp from "sharp";
 
+export const maxDuration = 300; // 5分のタイムアウト
+
 export async function POST(req: Request) {
   const { keyword } = await req.json();
   console.log("keyword", keyword);
@@ -27,11 +29,19 @@ export async function POST(req: Request) {
           Authorization: `Bearer ${process.env.STABLE_DIFFUSION_API_KEY}`,
           Accept: "image/*",
         },
+        timeout: 60000, // 60秒のタイムアウト
       }
     );
 
     if (response.status !== 200) {
-      throw new Error(`${response.status}: ${response.data.toString()}`);
+      console.error("API Error:", response.status, response.data.toString());
+      return NextResponse.json(
+        {
+          error: "画像生成に失敗しました。もう一度お試しください。",
+          details: response.data.toString(),
+        },
+        { status: response.status }
+      );
     }
 
     //画像の最適化
@@ -48,10 +58,31 @@ export async function POST(req: Request) {
       imageUrl,
     });
   } catch (error) {
-    console.log("Error generating image", error);
+    console.error("Error generating image:", error);
+
+    if (axios.isAxiosError(error)) {
+      if (error.code === "ECONNABORTED") {
+        return NextResponse.json(
+          {
+            error: "画像生成がタイムアウトしました。もう一度お試しください。",
+          },
+          { status: 504 }
+        );
+      }
+
+      return NextResponse.json(
+        {
+          error: "画像生成に失敗しました。",
+          details: error.message,
+        },
+        { status: error.response?.status || 500 }
+      );
+    }
+
     return NextResponse.json(
       {
-        error: "Failed to generate image",
+        error: "予期せぬエラーが発生しました。",
+        details: error instanceof Error ? error.message : "Unknown error",
       },
       { status: 500 }
     );
